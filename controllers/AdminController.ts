@@ -2,9 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import { CreateVendorInput } from "../dto";
 import { Vendor } from "../models";
 import { GeneratePassword, GenerateSalt } from "../utility";
+import { Types } from "mongoose";
 
 export const FindVendor = async (vendor: {
-  id?: string | undefined;
+  id?: Types.ObjectId | undefined;
   email?: string;
 }) => {
   const { id, email } = vendor;
@@ -69,7 +70,7 @@ export const GetVendorByID = async (
   try {
     const { id } = req.params;
 
-    const vendor = await FindVendor({ id });
+    const vendor = await FindVendor({ id: new Types.ObjectId(id) });
 
     if (vendor !== null) {
       return res.json(vendor);

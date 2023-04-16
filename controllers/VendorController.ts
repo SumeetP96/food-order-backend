@@ -9,6 +9,7 @@ import {
 import { Food } from "../models";
 import { GenerateSignature, ValidatePassword } from "../utility";
 import { FindVendor } from "./AdminController";
+import { Types } from "mongoose";
 
 export const VendorLogin = async (
   req: Request,
@@ -49,7 +50,9 @@ export const GetVendorProfile = async (
     const user = req.user;
 
     if (user) {
-      const existingVendor = await FindVendor({ id: user._id });
+      const existingVendor = await FindVendor({
+        id: new Types.ObjectId(user._id),
+      });
 
       return res.json(existingVendor);
     }
@@ -69,7 +72,9 @@ export const UpdateVendorCoverImage = async (
     const user = req.user;
 
     if (user) {
-      const existingVendor = await FindVendor({ id: user._id });
+      const existingVendor = await FindVendor({
+        id: new Types.ObjectId(user._id),
+      });
 
       if (existingVendor) {
         const files = req.files as [Express.Multer.File];
@@ -99,7 +104,9 @@ export const UpdateVendorProfile = async (
     if (user) {
       const { name, address, phone, foodTypes } = <EditVendorInput>req.body;
 
-      const existingVendor = await FindVendor({ id: user._id });
+      const existingVendor = await FindVendor({
+        id: new Types.ObjectId(user._id),
+      });
 
       if (existingVendor) {
         existingVendor.name = name;
@@ -130,7 +137,9 @@ export const UpdateVendorService = async (
     if (user) {
       const { serviceAvailable } = <EditVendorService>req.body;
 
-      const existingVendor = await FindVendor({ id: user._id });
+      const existingVendor = await FindVendor({
+        id: new Types.ObjectId(user._id),
+      });
 
       if (existingVendor) {
         existingVendor.serviceAvailable = serviceAvailable;
@@ -182,7 +191,9 @@ export const CreateFood = async (
         CreateFoodInput
       >req.body;
 
-      const existingVendor = await FindVendor({ id: user._id });
+      const existingVendor = await FindVendor({
+        id: new Types.ObjectId(user._id),
+      });
 
       if (existingVendor) {
         const files = req.files as [Express.Multer.File];

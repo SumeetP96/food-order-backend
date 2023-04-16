@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export interface CreateVendorInput {
   name: string;
   ownerName: string;
@@ -26,7 +28,7 @@ export interface EditVendorService {
 }
 
 export interface VendorPayload {
-  _id: string;
+  _id: Types.ObjectId;
   email: string;
   name: string;
   foodTypes: [string];

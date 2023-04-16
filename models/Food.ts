@@ -27,7 +27,9 @@ const FoodSchema = new Schema(
   {
     toJSON: {
       transform(doc, obj) {
-        delete obj.__v, delete obj.createdAt, delete obj.updatedAt;
+        delete obj.__v;
+        delete obj.createdAt;
+        delete obj.updatedAt;
       },
     },
     timestamps: true,

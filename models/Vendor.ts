@@ -27,7 +27,7 @@ const VendorSchema = new Schema(
     email: { type: String, required: true },
     password: { type: String, required: true },
     salt: { type: String, required: true },
-    serviceAvailable: { type: Boolean },
+    serviceAvailable: { type: Boolean, default: false },
     coverImages: [String],
     rating: Number,
     foods: [{ type: SchemaTypes.ObjectId, ref: "food" }],
@@ -35,11 +35,11 @@ const VendorSchema = new Schema(
   {
     toJSON: {
       transform(doc, obj) {
-        delete obj.password,
-          delete obj.salt,
-          delete obj.__v,
-          delete obj.createdAt,
-          delete obj.updatedAt;
+        delete obj.password;
+        delete obj.salt;
+        delete obj.__v;
+        delete obj.createdAt;
+        delete obj.updatedAt;
       },
     },
     timestamps: true,
