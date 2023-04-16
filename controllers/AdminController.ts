@@ -19,24 +19,28 @@ export const CreateVendor = async (
   res: Response,
   next: NextFunction
 ) => {
-  const reqBody = <CreateVendorInput>req.body;
+  try {
+    const reqBody = <CreateVendorInput>req.body;
 
-  const existingVendor = await FindVendor({ email: reqBody.email });
-  if (existingVendor) {
-    return res.json({ message: "Vendor with this email already exists!" });
+    const existingVendor = await FindVendor({ email: reqBody.email });
+    if (existingVendor) {
+      return res.json({ message: "Vendor with this email already exists!" });
+    }
+
+    // Encrypt password
+    const salt = await GenerateSalt();
+    const password = await GeneratePassword(reqBody.password, salt);
+
+    const newVendor = await Vendor.create({
+      ...reqBody,
+      salt,
+      password,
+    });
+
+    return res.json(newVendor);
+  } catch (e) {
+    next(e);
   }
-
-  // Encrypt password
-  const salt = await GenerateSalt();
-  const password = await GeneratePassword(reqBody.password, salt);
-
-  const newVendor = await Vendor.create({
-    ...reqBody,
-    salt,
-    password,
-  });
-
-  return res.json(newVendor);
 };
 
 export const GetVendors = async (
@@ -44,13 +48,17 @@ export const GetVendors = async (
   res: Response,
   next: NextFunction
 ) => {
-  const vendors = await Vendor.find();
+  try {
+    const vendors = await Vendor.find();
 
-  if (vendors !== null) {
-    return res.json(vendors);
+    if (vendors !== null) {
+      return res.json(vendors);
+    }
+
+    return res.json({ message: "Vendors not found!" });
+  } catch (e) {
+    next(e);
   }
-
-  return res.json({ message: "Vendors not found!" });
 };
 
 export const GetVendorByID = async (
@@ -58,13 +66,17 @@ export const GetVendorByID = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-  const vendor = await FindVendor({ id });
+    const vendor = await FindVendor({ id });
 
-  if (vendor !== null) {
-    return res.json(vendor);
+    if (vendor !== null) {
+      return res.json(vendor);
+    }
+
+    return res.json({ message: "Vendor with the given id not found!" });
+  } catch (e) {
+    next(e);
   }
-
-  return res.json({ message: "Vendor with the given id not found!" });
 };
