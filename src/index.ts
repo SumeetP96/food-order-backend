@@ -1,6 +1,7 @@
 import express from "express";
-import ExpressApp from "./services/ExpressApp";
+import { PORT } from "./config";
 import DatabaseConnection from "./services/DatabaseConnection";
+import ExpressApp from "./services/ExpressApp";
 
 const StartServer = async () => {
   const app = express();
@@ -8,8 +9,8 @@ const StartServer = async () => {
   await ExpressApp(app);
   await DatabaseConnection();
 
-  app.listen(8000, () => {
-    console.log("Application is running on port: 8000");
+  app.listen(PORT, () => {
+    console.log(`Application is running on port: ${PORT}`);
   });
 };
 
