@@ -244,6 +244,13 @@ export const UpdateCustomerProfile = async (
   return res.status(400).json({ message: "Error updating profile!" });
 };
 
+export const AddToCart = (req: Request, res: Response, next: NextFunction) => {
+  const customer = req.user;
+
+  if (customer) {
+  }
+};
+
 export const CreateOrder = async (
   req: Request,
   res: Response,

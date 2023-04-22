@@ -25,12 +25,16 @@ router.patch("/otp", RequestOtp);
 router.get("/profile", GetCustomerProfile);
 router.patch("/profile", UpdateCustomerProfile);
 
+// Cart
+router.post("/cart");
+router.get("/cart");
+router.delete("/cart");
+
 // Order
 router.post("/create-order", CreateOrder);
 router.get("/orders", GetOrders);
 router.get("/orders/:id", GetOrderById);
 
-// Cart
 // Payment
 
 export { router as CustomerRoutes };
