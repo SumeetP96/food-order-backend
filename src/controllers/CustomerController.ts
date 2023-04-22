@@ -5,8 +5,9 @@ import {
   CreateCustomerInput,
   CustomerEditInput,
   CustomerLoginInput,
+  OrderInput,
 } from "../dto";
-import { Customer } from "../models";
+import { Customer, Food, Order } from "../models";
 import {
   GenerateOtp,
   GeneratePassword,
@@ -15,7 +16,6 @@ import {
   SendOtp,
   ValidatePassword,
 } from "../utility";
-import { webhook } from "twilio/lib/webhooks/webhooks";
 
 export const CustomerSignUp = async (
   req: Request,
@@ -243,3 +243,72 @@ export const UpdateCustomerProfile = async (
 
   return res.status(400).json({ message: "Error updating profile!" });
 };
+
+export const CreateOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const customer = req.user;
+
+  if (customer) {
+    const orderId = `${Math.floor(Math.random() * 89999) + 1000}`;
+
+    const profile = await Customer.findById(customer._id);
+
+    const cart = <[OrderInput]>req.body;
+
+    let cartItems = [];
+
+    let netAmount = 0;
+
+    const foods = await Food.find()
+      .where("_id")
+      .in(cart.map((item) => item._id))
+      .exec();
+
+    foods.forEach((food) => {
+      cart.forEach(({ _id, unit }) => {
+        if (food._id.toString() === _id) {
+          netAmount += food.price * unit;
+          cartItems.push({ food, unit });
+        }
+      });
+    });
+
+    if (cartItems.length) {
+      const currentOrder = await Order.create({
+        orderId: orderId,
+        items: cartItems,
+        totalAmount: netAmount,
+        orderDate: new Date(),
+        paidThrough: "COD",
+        PaymentResponse: "",
+        orderStatus: "Waiting",
+      });
+
+      if (currentOrder) {
+        profile.orders.push(currentOrder._id);
+        const updatedProfile = await profile.save();
+
+        if (updatedProfile) {
+          return res.status(200).json({ profile: updatedProfile });
+        }
+      }
+    }
+  }
+
+  return res.status(400).json({ message: "Error creating order!" });
+};
+
+export const GetOrders = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};
+
+export const GetOrderById = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};
