@@ -288,11 +288,11 @@ export const CreateOrder = async (
       });
 
       if (currentOrder) {
-        profile.orders.push(currentOrder._id);
+        profile.orders.push(currentOrder);
         const updatedProfile = await profile.save();
 
         if (updatedProfile) {
-          return res.status(200).json({ profile: updatedProfile });
+          return res.status(200).json({ order: currentOrder });
         }
       }
     }
@@ -301,14 +301,38 @@ export const CreateOrder = async (
   return res.status(400).json({ message: "Error creating order!" });
 };
 
-export const GetOrders = (
+export const GetOrders = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  const customer = req.user;
 
-export const GetOrderById = (
+  if (customer) {
+    const profile = await Customer.findById(customer._id).populate("orders");
+
+    if (profile) {
+      return res.status(200).json({ orders: profile.orders });
+    }
+  }
+
+  return res.status(400).json({ message: "Error getting orders!" });
+};
+
+export const GetOrderById = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  const orderId = req.params.id;
+
+  if (orderId) {
+    const order = await Order.findById(orderId).populate("items.food");
+
+    if (order) {
+      return res.status(200).json({ order: order });
+    }
+  }
+
+  return res.status(400).json({ message: "Error getting order!" });
+};
