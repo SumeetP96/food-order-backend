@@ -244,11 +244,87 @@ export const UpdateCustomerProfile = async (
   return res.status(400).json({ message: "Error updating profile!" });
 };
 
-export const AddToCart = (req: Request, res: Response, next: NextFunction) => {
+export const AddToCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const customer = req.user;
 
   if (customer) {
+    const profile = await Customer.findById(customer._id).populate("cart.food");
+
+    let cartItems = [];
+    const foodItem = <OrderInput>req.body;
+    const food = await Food.findById(foodItem._id);
+
+    if (food && profile) {
+      cartItems = profile.cart;
+
+      if (cartItems.length) {
+        const existingFood = cartItems.find(
+          (item) => item.food._id.toString() === foodItem._id
+        );
+
+        if (existingFood) {
+          const index = cartItems.indexOf(existingFood);
+          if (foodItem.unit > 0) {
+            cartItems[index] = { food, unit: foodItem.unit };
+          } else {
+            cartItems.splice(index, 1);
+          }
+        } else {
+          cartItems.push({ food, unit: foodItem.unit });
+        }
+      } else {
+        cartItems.push({ food, unit: foodItem.unit });
+      }
+
+      profile.cart = cartItems as any;
+      const updatedProfile = await profile.save();
+
+      return res.status(200).json({ cart: updatedProfile.cart });
+    }
   }
+
+  return res.status(400).json({ message: "Error adding to cart!" });
+};
+
+export const GetCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const customer = req.user;
+
+  if (customer) {
+    const profile = await Customer.findById(customer._id).populate("cart.food");
+    if (profile) {
+      return res.status(200).json({ cart: profile.cart });
+    }
+  }
+
+  return res.status(400).json({ message: "Cart is empty!" });
+};
+
+export const DeleteCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const customer = req.user;
+
+  if (customer) {
+    const profile = await Customer.findById(customer._id);
+    if (profile) {
+      profile.cart = [] as any;
+      const updatedProfile = await profile.save();
+
+      return res.status(200).json({ cart: updatedProfile.cart });
+    }
+  }
+
+  return res.status(400).json({ message: "Cart alredy empty!" });
 };
 
 export const CreateOrder = async (

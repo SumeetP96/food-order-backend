@@ -15,6 +15,7 @@ interface CustomerDocument {
   lat: number;
   lng: number;
   orders: [OrderDocument];
+  cart: [any];
 }
 
 const CustomerSchema = new Schema(
@@ -32,6 +33,12 @@ const CustomerSchema = new Schema(
     lat: Number,
     lng: Number,
     orders: [{ type: Schema.Types.ObjectId, ref: "order" }],
+    cart: [
+      {
+        food: { type: Schema.Types.ObjectId, ref: "food" },
+        unit: { type: Number, required: true },
+      },
+    ],
   },
   {
     toJSON: {
