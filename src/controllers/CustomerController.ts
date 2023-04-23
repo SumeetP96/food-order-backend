@@ -345,6 +345,8 @@ export const CreateOrder = async (
 
     let netAmount = 0;
 
+    let vendorId = null;
+
     const foods = await Food.find()
       .where("_id")
       .in(cart.map((item) => item._id))
@@ -353,6 +355,7 @@ export const CreateOrder = async (
     foods.forEach((food) => {
       cart.forEach(({ _id, unit }) => {
         if (food._id.toString() === _id) {
+          vendorId = food.vendorId;
           netAmount += food.price * unit;
           cartItems.push({ food, unit });
         }
@@ -362,16 +365,24 @@ export const CreateOrder = async (
     if (cartItems.length) {
       const currentOrder = await Order.create({
         orderId: orderId,
+        vendorId: vendorId,
         items: cartItems,
         totalAmount: netAmount,
         orderDate: new Date(),
         paidThrough: "COD",
         PaymentResponse: "",
         orderStatus: "Waiting",
+        remarks: "",
+        deliveryId: "",
+        appliedOffers: false,
+        offerId: null,
+        readyTime: 45,
       });
 
       if (currentOrder) {
         profile.orders.push(currentOrder);
+        profile.cart = [] as any;
+
         const updatedProfile = await profile.save();
 
         if (updatedProfile) {

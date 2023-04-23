@@ -2,8 +2,11 @@ import express, { NextFunction, Request, Response } from "express";
 import multer from "multer";
 import {
   CreateFood,
+  GetCurrentOrders,
   GetFoods,
+  GetOrderDetails,
   GetVendorProfile,
+  ProcessOrder,
   UpdateVendorCoverImage,
   UpdateVendorProfile,
   UpdateVendorService,
@@ -43,5 +46,10 @@ router.patch("/service", UpdateVendorService);
 router.patch("/coverimage", images, UpdateVendorCoverImage);
 router.get("/foods", GetFoods);
 router.post("/foods", images, CreateFood);
+
+// Orders
+router.get("/orders", GetCurrentOrders);
+router.post("/orders/:id/process", ProcessOrder);
+router.get("/orders/:id", GetOrderDetails);
 
 export { router as VendorRoutes };
